@@ -7,16 +7,16 @@ const htmlFile = path.join(__dirname, '../dist/index.html');
 const app = express();
 
 function nocache(req, res, next) {
-  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-  res.header('Expires', '-1');
-  res.header('Pragma', 'no-cache');
+  res.setHeader('Surrogate-Control', 'no-store');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   next();
 }
 
 app.use([nocache]);
 
 app.use('*', (req, res) => {
-  res.set('');
   const html = fs.readFileSync(htmlFile, 'UTF-8');
   res.send(html);
 });
