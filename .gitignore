@@ -1,0 +1,5 @@
+dist/
+node_modules/
+stats.json
+report.html
+docker-compose.override.yml
