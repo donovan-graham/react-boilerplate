@@ -1,26 +1,16 @@
-const fs = require('fs');
 const path = require('path');
 const express = require('express');
 
-const htmlFile = path.join(__dirname, '../dist/index.html');
+const distPath = path.join(__dirname, '../dist');
 
-const app = express();
+const noCacheMiddleware = require('./middleware/no-cache');
+const staticAssetsRouter = require('./router/static-assets')(`${distPath}/assets`);
+const singlePageAppRouter = require('./router/single-page-app')(`${distPath}/index.html`);
 
-function nocache(req, res, next) {
-  res.setHeader('Surrogate-Control', 'no-store');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  next();
-}
+const mainRouter = express.Router();
 
-app.use([nocache]);
+mainRouter.use(staticAssetsRouter);
+mainRouter.use(noCacheMiddleware);
+mainRouter.use(singlePageAppRouter);
 
-app.use('*', (req, res) => {
-  const html = fs.readFileSync(htmlFile, 'UTF-8');
-  res.send(html);
-});
-
-app.listen(3000, function() {
-  console.log('Listening on port 3000');
-});
+module.exports = mainRouter;
